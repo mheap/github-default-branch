@@ -1,0 +1,26 @@
+{
+  "name": "github-default-branch",
+  "version": "1.0.0",
+  "description": "Rename your default branch on GitHub",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "github",
+    "default",
+    "branch",
+    "master",
+    "main",
+    "cli"
+  ],
+  "author": "Michael Heap <m@michaelheap.com> (https://michaelheap.com)",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^18.0.0",
+    "yargs": "^15.3.1"
+  },
+  "bin": {
+    "github-default-branch": "./bin/github-default-branch"
+  }
+}

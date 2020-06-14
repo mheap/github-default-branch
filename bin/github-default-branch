@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+(async function () {
+  const { argv } = require("yargs");
+
+  // Up front validation
+  if (!argv.org && !argv.repo) {
+    console.log("❎ You must provide --org or --repo");
+    return;
+  }
+
+  if (argv.org && argv.repo) {
+    console.log("❎ Only --org OR --repo is supported");
+    return;
+  }
+
+  if (!argv.pat && !process.env.GITHUB_TOKEN) {
+    console.log(
+      "❎ Provide a GitHub Access Token using --pat <token> or using the GITHUB_TOKEN environment variable"
+    );
+    return;
+  }
+
+  const { Octokit } = require("@octokit/rest");
+
+  const getRepos = require("../src/get-repos");
+  const getBranchSha = require("../src/get-branch-sha");
+  const createBranch = require("../src/create-branch");
+  const removeBranch = require("../src/remove-branch");
+
+  const octokit = new Octokit({
+    auth: argv.pat || process.env.GITHUB_TOKEN,
+  });
+
+  if (argv.verbose) {
+    const {
+      data: {
+        rate: { remaining },
+      },
+    } = await octokit.rateLimit.get();
+    console.log(`You have ${remaining} API requests remaining`);
+  }
+
+  const repos = await getRepos(argv, octokit);
+
+  const old = argv.old || "master";
+  const target = argv.new || "main";
+
+  for (let r of repos) {
+    if (argv.verbose) {
+      console.log(`✏️  Processing ${r}`);
+    }
+
+    const [owner, repo] = r.split("/", 2);
+    const currentMasterSha = await getBranchSha(owner, repo, old, octokit);
+    const mainBranch = await createBranch(
+      owner,
+      repo,
+      target,
+      currentMasterSha,
+      octokit
+    );
+
+    // List all PRs
+    let pulls = await octokit.paginate(
+      "GET /repos/:owner/:repo/pulls",
+      {
+        owner,
+        repo,
+        state: "open",
+        per_page: 100,
+      },
+      (response) => response.data
+    );
+
+    // Update the target branch for all open PRs
+    for (let pr of pulls) {
+      if (pr.base.ref != old) {
+        continue;
+      }
+
+      await octokit.pulls.update({
+        owner,
+        repo,
+        pull_number: pr.number,
+        base: target,
+      });
+    }
+
+    // Update the default branch in the repo
+    await octokit.repos.update({
+      owner,
+      repo,
+      default_branch: target,
+    });
+
+    // Remove old branch if required
+    if (!argv.keepOld) {
+      await removeBranch(owner, repo, old, octokit);
+    }
+  }
+
+  console.log("✅ Complete");
+})();
