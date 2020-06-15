@@ -19,7 +19,9 @@ npm install -g github-default-branch
 
 ## Authentication
 
-[Create a personal access token](https://github.com/settings/tokens/new) with the `repo` scope. This is the value for `<token>` in the examples
+[Create a personal access token](https://github.com/settings/tokens/new) with the `repo` scope. This is the value for `<token>` in the examples.
+
+> If you don't want your token to be stored in your shell history, you can set `GITHUB_TOKEN` in the environment and that will be read instead
 
 ## Usage
 
@@ -29,6 +31,12 @@ github-default-branch --pat <token> --repo user/repo
 
 # Rename dev to develop
 github-default-branch --pat <token> --repo user/repo --old dev --new develop
+
+# Rename all repos owned by an org
+github-default-branch --pat <token> --org my-org-name
+
+# Rename all repos owned by a user
+github-default-branch --pat <token> --user my-user
 ```
 
 Run with the `--verbose` flag to see debug information
@@ -41,12 +49,6 @@ Run with the `--verbose` flag to see debug information
 | --repo <name> | The repo to update (format: user/repo)                         | N/A     |
 | --user <name> | Update all repos owned by the provided user (example: my-user) | N/A     |
 | --org <name>  | Update all repos in the provided org (example: my-org-name)    | N/A     |
-| --keep-old    |                                                                | false   |
+| --keep-old    | Keep the old branch rather than deleting it                    | false   |
 | --old         | The name of the branch to rename                               | master  |
 | --new         | The new branch name                                            | main    |
-
-## Enhancements
-
-- Error if the target branch already exists
-- `--visibility` flag (`all`, `public`, `private`). Default `all`
-- Copy branch protections from the old branch to the new one
