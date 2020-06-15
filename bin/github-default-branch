@@ -3,13 +3,17 @@
   const { argv } = require("yargs");
 
   // Up front validation
-  if (!argv.org && !argv.repo) {
-    console.log("❎ You must provide --org or --repo");
+  const providedRepoSelectors = [argv.org, argv.user, argv.repo].filter(
+    (v) => v
+  ).length;
+
+  if (providedRepoSelectors === 0) {
+    console.log("❎ You must provide --org, --user or --repo");
     return;
   }
 
-  if (argv.org && argv.repo) {
-    console.log("❎ Only --org OR --repo is supported");
+  if (providedRepoSelectors > 1) {
+    console.log("❎ Only --org OR --user OR --repo is supported");
     return;
   }
 
