@@ -3,15 +3,17 @@ module.exports = async function (args, octokit) {
     return [args.repo];
   }
 
-  let repos;
+  let repos = [];
   if (args.org) {
-    ({ data: repos } = await octokit.repos.listForOrg({
-      org: args.org,
-    }));
+    for await (const response of octokit.paginate.iterator(octokit.repos.listForOrg, { org: args.org })) {
+      repos = repos.concat(response.data);
+    }
   }
 
   if (args.user) {
-    ({ data: repos } = await octokit.repos.listForAuthenticatedUser());
+    for await (const response of octokit.paginate.iterator(octokit.repos.listForAuthenticatedUser)) {
+      repos = repos.concat(response.data);
+    }
 
     // Filter down to repos owned by the provided user
     // This is different to using affiliation: owner as it allows
