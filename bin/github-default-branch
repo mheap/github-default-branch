@@ -67,7 +67,14 @@
     }
 
     const [owner, repo] = r.split("/", 2);
-    const currentMasterSha = await getBranchSha(owner, repo, old, octokit);
+    let currentMasterSha;
+
+    try {
+      currentMasterSha = await getBranchSha(owner, repo, old, octokit);
+    } catch (e) {
+      console.log(`⚠️  Skipping ${r}: ${e.message}\n`)
+      continue;
+    }
 
     if (argv.verbose) {
       console.log(`✏️  Creating branch [${target}] at [${currentMasterSha}]`);
