@@ -72,6 +72,7 @@
     try {
       currentMasterSha = await getBranchSha(owner, repo, old, octokit);
     } catch (e) {
+      // Typically, this will fail when the old branch, i.e. master, doesn't exist.
       console.log(`⚠️  Skipping ${r}: ${e.message}\n`)
       continue;
     }
