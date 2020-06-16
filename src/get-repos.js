@@ -22,5 +22,9 @@ module.exports = async function (args, octokit) {
     repos = repos.filter((repo) => repo.owner.login == args.user);
   }
 
+  if (args.skipForks) {
+    repos = repos.filter((repo) => !repo.fork);
+  }
+
   return repos.map((repo) => repo.full_name);
 };

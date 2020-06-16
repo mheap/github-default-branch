@@ -52,5 +52,6 @@ Run with the `--verbose` flag to see debug information
 | --keep-old        | Keep the old branch rather than deleting it                    | false   |
 | --dry-run         | Output log messages only. Do not make any changes              | false   |
 | --list-repos-only | List repos that would be affected, then exit                   | false   |
+| --skip-forks      | Skips forked repositories                                      | false   |
 | --old             | The name of the branch to rename                               | master  |
 | --new             | The new branch name                                            | main    |
