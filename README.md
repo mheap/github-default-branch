@@ -46,6 +46,7 @@ Run with the `--verbose` flag to see debug information
 | Flag          | Description                                                    | Default |
 | ------------- | -------------------------------------------------------------- | ------- |
 | --pat <token> | GitHub API Token                                               | N/A     |
+| --dry-run     | Output log messages only. Do not make any changes              | N/A     |
 | --repo <name> | The repo to update (format: user/repo)                         | N/A     |
 | --user <name> | Update all repos owned by the provided user (example: my-user) | N/A     |
 | --org <name>  | Update all repos in the provided org (example: my-org-name)    | N/A     |
