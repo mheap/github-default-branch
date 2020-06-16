@@ -53,6 +53,11 @@
 
   const repos = await getRepos(argv, octokit);
 
+  if (argv.listReposOnly) {
+    console.log(repos.join("\n"));
+    return;
+  }
+
   const old = argv.old || "master";
   const target = argv.new || "main";
 
