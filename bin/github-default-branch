@@ -2,6 +2,13 @@
 (async function () {
   const { argv } = require("yargs");
 
+  const isDryRun = !!argv.dryRun;
+
+  // Force verbose output in dry run mode
+  if (isDryRun) {
+    argv.verbose = true;
+  }
+
   // Up front validation
   const providedRepoSelectors = [argv.org, argv.user, argv.repo].filter(
     (v) => v
@@ -41,10 +48,15 @@
         rate: { remaining },
       },
     } = await octokit.rateLimit.get();
-    console.log(`You have ${remaining} API requests remaining`);
+    console.log(`You have ${remaining} API requests remaining\n`);
   }
 
   const repos = await getRepos(argv, octokit);
+
+  if (argv.listReposOnly) {
+    console.log(repos.join("\n"));
+    return;
+  }
 
   const old = argv.old || "master";
   const target = argv.new || "main";
@@ -56,13 +68,20 @@
 
     const [owner, repo] = r.split("/", 2);
     const currentMasterSha = await getBranchSha(owner, repo, old, octokit);
-    const mainBranch = await createBranch(
-      owner,
-      repo,
-      target,
-      currentMasterSha,
-      octokit
-    );
+
+    if (argv.verbose) {
+      console.log(`✏️  Creating branch [${target}] at [${currentMasterSha}]`);
+    }
+
+    if (!isDryRun) {
+      const mainBranch = await createBranch(
+        owner,
+        repo,
+        target,
+        currentMasterSha,
+        octokit
+      );
+    }
 
     // List all PRs
     let pulls = await octokit.paginate(
@@ -82,24 +101,49 @@
         continue;
       }
 
-      await octokit.pulls.update({
+      if (argv.verbose) {
+        console.log(
+          `✏️  Updating pull request [#${pr.number}] in [${repo}] from [${pr.base.ref}] to [${target}]`
+        );
+      }
+
+      if (!isDryRun) {
+        await octokit.pulls.update({
+          owner,
+          repo,
+          pull_number: pr.number,
+          base: target,
+        });
+      }
+    }
+
+    if (argv.verbose) {
+      console.log(`✏️  Updating default branch to [${target}] in [${repo}]`);
+    }
+
+    if (!isDryRun) {
+      // Update the default branch in the repo
+      await octokit.repos.update({
         owner,
         repo,
-        pull_number: pr.number,
-        base: target,
+        default_branch: target,
       });
     }
 
-    // Update the default branch in the repo
-    await octokit.repos.update({
-      owner,
-      repo,
-      default_branch: target,
-    });
+    if (argv.verbose) {
+      console.log(`✏️  Deleting old branch [${old}] in ${repo}`);
+    }
 
-    // Remove old branch if required
-    if (!argv.keepOld) {
-      await removeBranch(owner, repo, old, octokit);
+    if (!isDryRun) {
+      // Remove old branch if required
+      if (!argv.keepOld) {
+        await removeBranch(owner, repo, old, octokit);
+      }
+    }
+
+    // Add an empty new line to break up the output for each repo
+    if (argv.verbose) {
+      console.log("");
     }
   }
 
