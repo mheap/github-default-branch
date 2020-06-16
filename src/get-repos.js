@@ -3,21 +3,36 @@ module.exports = async function (args, octokit) {
     return [args.repo];
   }
 
-  let repos;
+  let repos = [];
   if (args.org) {
-    ({ data: repos } = await octokit.repos.listForOrg({
-      org: args.org,
-    }));
+    repos = await octokit.paginate(
+      octokit.repos.listForOrg,
+      {
+        org: args.org,
+        per_page: 100
+      },
+      (response) => response.data
+    );
   }
 
   if (args.user) {
-    ({ data: repos } = await octokit.repos.listForAuthenticatedUser());
+    repos = await octokit.paginate(
+      octokit.repos.listForAuthenticatedUser,
+      {
+        per_page: 100
+      },
+      (response) => response.data
+    );
 
     // Filter down to repos owned by the provided user
     // This is different to using affiliation: owner as it allows
     // the consumer to update repos that they have admin access to
     // but do not own
     repos = repos.filter((repo) => repo.owner.login == args.user);
+  }
+
+  if (args.skipForks) {
+    repos = repos.filter((repo) => !repo.fork);
   }
 
   return repos.map((repo) => repo.full_name);
