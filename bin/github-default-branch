@@ -33,11 +33,20 @@
 
   const { Octokit } = require("@octokit/rest");
 
+  const confirmation = require("../src/confirmation");
   const getRepos = require("../src/get-repos");
   const getBranchSha = require("../src/get-branch-sha");
   const createBranch = require("../src/create-branch");
   const removeBranch = require("../src/remove-branch");
   const updateContent = require("../src/update-content");
+
+  const old = argv.old || "master";
+  const target = argv.new || "main";
+
+  // Make sure they want to do this
+  if (!(await confirmation(argv.confirm, old, target))) {
+    return;
+  }
 
   const octokit = new Octokit({
     auth: argv.pat || process.env.GITHUB_TOKEN,
@@ -58,10 +67,6 @@
     console.log(repos.join("\n"));
     return;
   }
-
-  const old = argv.old || "master";
-  const target = argv.new || "main";
-
   for (let r of repos) {
     if (argv.verbose) {
       console.log(`✏️  Processing ${r}`);
