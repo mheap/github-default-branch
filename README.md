@@ -55,3 +55,4 @@ Run with the `--verbose` flag to see debug information
 | --skip-forks      | Skips forked repositories                                      | false   |
 | --old             | The name of the branch to rename                               | master  |
 | --new             | The new branch name                                            | main    |
+| --confirm         | Run without prompting for confirmation                         | false   |
