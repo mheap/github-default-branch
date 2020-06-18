@@ -10,6 +10,7 @@ For each repo, this tool will:
 - Update all open pull requests to point at the new branch
 - Update the default branch for the repo
 - Delete the old branch
+- Update [known URL patterns](https://github.com/mheap/github-default-branch/blob/main/src/update-content.js) in source files
 
 ## Installation
 
