@@ -35,5 +35,8 @@ module.exports = async function (args, octokit) {
     repos = repos.filter((repo) => !repo.fork);
   }
 
+  // Filter out archived repos as we cannot write to them
+  repos = repos.filter((repo) => !repo.archived);
+
   return repos.map((repo) => repo.full_name);
 };
