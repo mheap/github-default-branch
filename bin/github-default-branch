@@ -39,6 +39,7 @@
   const createBranch = require("../src/create-branch");
   const removeBranch = require("../src/remove-branch");
   const updateContent = require("../src/update-content");
+  const updateBranchProtection = require("../src/branch-protection");
 
   const old = argv.old || "master";
   const target = argv.new || "main";
@@ -142,6 +143,14 @@
         repo,
         default_branch: target,
       });
+    }
+
+    if (argv.verbose) {
+      console.log(`✏️  Changing branch protections`);
+    }
+
+    if (!isDryRun) {
+      await updateBranchProtection(owner, repo, old, target, octokit);
     }
 
     if (argv.verbose) {

@@ -11,6 +11,7 @@ For each repo, this tool will:
 - Update the default branch for the repo
 - Delete the old branch
 - Update [known URL patterns](https://github.com/mheap/github-default-branch/blob/main/src/update-content.js) in source files
+- Update any branch protections for `$old` to `$new`. (This does **not** work with patterns, it has to be an exact match)
 
 ## Installation
 
