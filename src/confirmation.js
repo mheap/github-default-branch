@@ -2,7 +2,7 @@ const Confirm = require("prompt-confirm");
 
 module.exports = async function (cliConfirmed, old, target) {
   if (cliConfirmed) {
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 
   const message = `This tool will:
