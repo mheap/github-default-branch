@@ -1,3 +1,5 @@
+const replaceAll = require("string.prototype.replaceall");
+
 module.exports = async function (
   owner,
   repo,
@@ -27,7 +29,7 @@ module.exports = async function (
       let content = file.content;
       for (let r of replacements[path]) {
         var re = new RegExp(r.from, "g");
-        content = content.replace(re, r.to);
+        content = replaceAll(content, r.from, r.to);
       }
 
       if (content !== file.content) {
