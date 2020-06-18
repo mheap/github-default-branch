@@ -17,7 +17,13 @@ module.exports = async function (owner, repo, old, target, octokit) {
   } = await octokit.graphql(query, { owner, repo });
 
   // there can only be one protection per pattern
-  const { id } = branchProtectionRules.find((rule) => rule.pattern === old);
+  const rule = branchProtectionRules.find((rule) => rule.pattern === old);
+
+  // No matching patterns
+  if (!rule) {
+    return;
+  }
+
   await octokit.graphql(
     `mutation($branchProtectionRuleId:ID!,$pattern:String!) {
           updateBranchProtectionRule (input:{branchProtectionRuleId:$branchProtectionRuleId,pattern:$pattern}) {
@@ -28,7 +34,7 @@ module.exports = async function (owner, repo, old, target, octokit) {
           }
         }`,
     {
-      branchProtectionRuleId: id,
+      branchProtectionRuleId: rule.id,
       pattern: target,
     }
   );
