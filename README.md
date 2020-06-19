@@ -21,7 +21,7 @@ npm install -g github-default-branch
 
 ## Authentication
 
-[Create a personal access token](https://github.com/settings/tokens/new) with the `repo` scope. This is the value for `<token>` in the examples.
+[Create a personal access token](https://github.com/settings/tokens/new?scopes=repo&description=github-default-branch) with the `repo` scope. This is the value for `<token>` in the examples.
 
 > If you don't want your token to be stored in your shell history, you can set `GITHUB_TOKEN` in the environment and that will be read instead
 
