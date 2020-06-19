@@ -52,7 +52,9 @@ module.exports = async function (
         }
       }
     } catch (e) {
-      console.log(e);
+      if (isVerbose) {
+        console.log(`✏️  Unable to update [${path}]`);
+      }
     }
   }
 };
