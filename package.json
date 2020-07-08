@@ -24,9 +24,5 @@
   },
   "bin": {
     "github-default-branch": "./bin/github-default-branch"
-  },
-  "devDependencies": {
-    "@octokit/types": "^5.0.1",
-    "@types/yargs": "^15.0.5"
   }
 }
