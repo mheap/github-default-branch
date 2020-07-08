@@ -20,7 +20,7 @@
     "@octokit/rest": "^18.0.0",
     "prompt-confirm": "^2.0.4",
     "string.prototype.replaceall": "^1.0.3",
-    "yargs": "^15.3.1"
+    "yargs": "^15.4.0"
   },
   "bin": {
     "github-default-branch": "./bin/github-default-branch"
