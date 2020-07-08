@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 (async function () {
   const { argv } = require("yargs").options({
-    pat: {type: 'string', description: 'GitHub API Token'},
-    repo: {type: 'string', description: 'The repo to update (format: user/repo'},
-    user: {type: 'string', description: 'Update all repos owned by the provided user (example: my-user)'},
-    org: {type: 'string', description: 'Update all repos in the provided org (example: my-org-name)'},
-    keepOld: {type: 'boolean', default: false, description: 'Keep the old branch rather than deleting it'},
-    dryRun: {type: 'boolean', default: false, description: 'Output log messages only. Do not make any changes'},
-    listReposOnly: {type: 'boolean', default: false, description: 'List repos that would be affected, then exit'},
-    skipForks: {type: 'boolean', default: false, description: 'Skips forked repositories'},
-    old: {type: 'string', default: 'master', description: 'The name of the branch to rename'},
-    new: {type: 'string', default: 'main', description: 'The new branch name'},
-    confirm: {type: 'boolean', default: false, description: 'Run without prompting for confirmation'},
+    pat: {type: "string", description: "GitHub API Token"},
+    repo: {type: "string", description: "The repo to update (format: user/repo"},
+    user: {type: "string", description: "Update all repos owned by the provided user (example: my-user)"},
+    org: {type: "string", description: "Update all repos in the provided org (example: my-org-name)"},
+    keepOld: {type: "boolean", default: false, description: "Keep the old branch rather than deleting it"},
+    dryRun: {type: "boolean", default: false, description: "Output log messages only. Do not make any changes"},
+    listReposOnly: {type: "boolean", default: false, description: "List repos that would be affected, then exit"},
+    skipForks: {type: "boolean", default: false, description: "Skips forked repositories"},
+    old: {type: "string", default: "master", description: "The name of the branch to rename"},
+    new: {type: "string", default: "main", description: "The new branch name"},
+    confirm: {type: "boolean", default: false, description: "Run without prompting for confirmation"},
   }).example([
-    ['$0 --pat <token> --repo user/repo', 'Rename master to main'],
-    ['$0 --pat <token> --repo user/repo --old dev --new develop', 'Rename dev to develop'],
-    ['$0 --pat <token> --org my-org-name', 'Rename all repos owned by an org'],
-    ['$0 --pat <token> --user my-user', 'Rename all repos owned by a user'],
+    ["$0 --pat <token> --repo user/repo", "Rename master to main"],
+    ["$0 --pat <token> --repo user/repo --old dev --new develop", "Rename dev to develop"],
+    ["$0 --pat <token> --org my-org-name", "Rename all repos owned by an org"],
+    ["$0 --pat <token> --user my-user", "Rename all repos owned by a user"],
   ]);
 
   const isDryRun = !!argv.dryRun;
