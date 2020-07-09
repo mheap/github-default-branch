@@ -13,9 +13,9 @@ module.exports = async function (
   isVerbose,
   isDryRun,
 ) {
-  const files = (await ls(`${process.cwd()}/replacements`)).filter((f) => f.endsWith('.js'));
+  const files = (await ls(`${__dirname}/../replacements`)).filter((f) => f.endsWith('.js'));
   const replacements = files.reduce((acc, next) => {
-    const replacement = require(`../replacements/${next}`)(
+    const { path, replacements } = require(`../replacements/${next}`)(
       owner,
       repo,
       old,
@@ -24,9 +24,8 @@ module.exports = async function (
       isVerbose,
       isDryRun,
     );
-    return Object.assign(acc, { [replacement.path]: replacement.replacements });
+    return Object.assign(acc, { [path]: replacements });
   }, {});
-
   for (let path in replacements) {
     try {
       let file = await loadFile(owner, repo, path, octokit);
