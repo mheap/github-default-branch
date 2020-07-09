@@ -12,11 +12,10 @@ module.exports = async function (
   octokit,
   isVerbose,
   isDryRun,
-  replacementsDir,
 ) {
-  const files = (await ls(replacementsDir)).filter((f) => f.endsWith('.js'));
+  const files = (await ls(`${process.cwd()}/replacements`)).filter((f) => f.endsWith('.js'));
   const replacements = files.reduce((acc, next) => {
-    const replacement = require(`${replacementsDir}/${next}`)(
+    const replacement = require(`../replacements/${next}`)(
       owner,
       repo,
       old,
