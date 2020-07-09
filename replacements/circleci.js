@@ -13,6 +13,10 @@ module.exports = function (owner, repo, old, target) {
             {
                 from: `only: ${old}`,
                 to: `only: ${target}`
+            },
+            {
+                from: `"${old}"`,
+                to: `"${target}"`
             }
         ]
     };
