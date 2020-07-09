@@ -58,3 +58,9 @@ Run with the `--verbose` flag to see debug information
 | --old             | The name of the branch to rename                               | master  |
 | --new             | The new branch name                                            | main    |
 | --confirm         | Run without prompting for confirmation                         | false   |
+
+## Replacements
+
+TODO document how to write and use replacements
+
+use `--replacements ./example-replacements`

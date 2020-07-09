@@ -12,6 +12,7 @@
     old: {type: "string", default: "master", description: "The name of the branch to rename"},
     new: {type: "string", default: "main", description: "The new branch name"},
     confirm: {type: "boolean", default: false, description: "Run without prompting for confirmation"},
+    replacements: {type: "string", default: "", description: "Specify a replacements folder. Replacements are used to modify file contents based on patterns, see README"},
   }).example([
     ["$0 --pat <token> --repo user/repo", "Rename master to main"],
     ["$0 --pat <token> --repo user/repo --old dev --new develop", "Rename dev to develop"],
@@ -106,7 +107,7 @@
     }
 
     if (!isDryRun) {
-      const mainBranch = await createBranch(
+      await createBranch(
         owner,
         repo,
         target,
@@ -181,16 +182,19 @@
       }
     }
 
-    // Update all content on the branch
-    await updateContent(
-      owner,
-      repo,
-      old,
-      target,
-      octokit,
-      argv.verbose,
-      isDryRun
-    );
+    if (argv.replacements) {
+      // Update all content on the branch
+      await updateContent(
+        owner,
+        repo,
+        old,
+        target,
+        octokit,
+        argv.verbose,
+        isDryRun,
+        argv.replacements,
+      );
+    }
 
     // Add an empty new line to break up the output for each repo
     if (argv.verbose) {

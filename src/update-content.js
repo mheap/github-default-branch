@@ -1,4 +1,8 @@
+const fs = require('fs');
+const util = require('util');
 const replaceAll = require("string.prototype.replaceall");
+
+const ls = util.promisify(fs.readdir);
 
 module.exports = async function (
   owner,
@@ -7,20 +11,14 @@ module.exports = async function (
   target,
   octokit,
   isVerbose,
-  isDryRun
+  isDryRun,
+  replacementsDir,
 ) {
-  const replacements = {
-    "README.md": [
-      {
-        from: `@${old}`,
-        to: `@${target}`,
-      },
-      {
-        from: `${owner}/${repo}.svg?branch=${old}`,
-        to: `${owner}/${repo}.svg?branch=${target}`,
-      },
-    ],
-  };
+  const files = (await ls(replacementsDir)).filter((f) => f.endsWith('.js'));
+  const replacements = files.reduce((acc, next) => {
+    const replacement = require(`${replacementsDir}/${next}`)(old, target);
+    return Object.assign(acc, {[replacement.path]: replacement.replacements});
+  }, {});
 
   for (let path in replacements) {
     try {
