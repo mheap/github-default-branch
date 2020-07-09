@@ -61,6 +61,4 @@ Run with the `--verbose` flag to see debug information
 
 ## Replacements
 
-TODO document how to write and use replacements
-
-use `--replacements ./example-replacements`
+TODO document how to write replacements
