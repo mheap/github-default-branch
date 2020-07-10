@@ -61,4 +61,43 @@ Run with the `--verbose` flag to see debug information
 
 ## Replacements
 
-TODO document how to write replacements
+Part of this script checks for the existence of files and updates their contents. Replacements are the mechanism for these updates.
+
+### How it Works
+
+Each .js file in the src/replacements folder is given a chance to run during the content updating step of the script. Each file in src/replacements is expected to export a function, that function receives all of the options that are available to the outmost script.
+
+If there is nothing to replace, then the script moves on to the next replacement.
+
+### How to Add a Replacement
+
+Add a file to src/replacements with a .js extension
+
+Like this:
+
+```javascript
+module.exports = function ({ owner, repo, old, target, octokit, verbose, isDryRun }) {
+    // code goes here
+    return {
+        path: '<path to file in repo>',
+        replacements: [
+            {
+                from: '<from pattern>',
+                to: '<to pattern>',
+            },
+            {
+                from: '<from pattern>',
+                to: '<to pattern>',
+            },
+        ],
+    };
+}
+
+```
+
+The file with the path in your repo will have any line matching `from` be swapped out with `to`
+
+
+### Known Issues
+
+The replacement system gives you octokit, that's great! Unfortunately replacement functions do not currently support asynchronous calls, that's bad.
