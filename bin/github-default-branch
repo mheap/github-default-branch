@@ -190,7 +190,7 @@
       old,
       target,
       octokit,
-      verbose: verbose,
+      verbose,
       isDryRun
     });
 
