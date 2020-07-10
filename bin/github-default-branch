@@ -153,7 +153,14 @@
       console.log(`✏️  Updating default branch to [${target}] in [${repo}]`);
     }
 
-    if (!isDryRun) {
+    const {
+      data: { default_branch: defaultBranch },
+    } = await octokit.repos.get({
+      owner,
+      repo
+    });
+
+    if (!isDryRun && defaultBranch === old) {
       // Update the default branch in the repo
       await octokit.repos.update({
         owner,
