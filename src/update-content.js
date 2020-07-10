@@ -13,9 +13,10 @@ module.exports = async function (
   isVerbose,
   isDryRun,
 ) {
-  const files = (await ls(`${__dirname}/../replacements`)).filter((f) => f.endsWith('.js'));
+  const replacementsDir = `${__dirname}/replacements`;
+  const files = (await ls(replacementsDir)).filter((f) => f.endsWith('.js'));
   const replacements = files.reduce((acc, next) => {
-    const { path, replacements } = require(`../replacements/${next}`)(
+    const { path, replacements } = require(`${replacementsDir}/${next}`)(
       owner,
       repo,
       old,
