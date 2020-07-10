@@ -1,4 +1,4 @@
-module.exports = function (owner, repo, old, target) {
+module.exports = function ({owner, repo, old, target}) {
     return {
         path: "README.md",
         replacements: [

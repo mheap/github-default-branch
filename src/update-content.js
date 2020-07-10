@@ -4,27 +4,18 @@ const replaceAll = require("string.prototype.replaceall");
 
 const ls = util.promisify(fs.readdir);
 
-module.exports = async function (
-  owner,
-  repo,
-  old,
-  target,
-  octokit,
-  isVerbose,
-  isDryRun,
-) {
+module.exports = async function (context) {
+  const {
+    owner,
+    repo,
+    octokit,
+    isVerbose,
+    isDryRun,
+  } = context;
   const replacementsDir = `${__dirname}/replacements`;
   const files = (await ls(replacementsDir)).filter((f) => f.endsWith('.js'));
   const replacements = files.reduce((acc, next) => {
-    const { path, replacements } = require(`${replacementsDir}/${next}`)(
-      owner,
-      repo,
-      old,
-      target,
-      octokit,
-      isVerbose,
-      isDryRun,
-    );
+    const { path, replacements } = require(`${replacementsDir}/${next}`)(context);
     return Object.assign(acc, { [path]: replacements });
   }, {});
   for (let path in replacements) {
@@ -33,8 +24,8 @@ module.exports = async function (
 
       let content = file.content;
       for (let r of replacements[path]) {
-        var re = new RegExp(r.from, "g");
-        content = replaceAll(content, r.from, r.to);
+        const re = new RegExp(r.from, "g");
+        content = replaceAll(content, re, r.to);
       }
 
       if (content !== file.content) {
@@ -42,7 +33,7 @@ module.exports = async function (
           console.log(`✏️  Updating [${path}]`);
         }
         if (!isDryRun) {
-          const r = await writeFile(
+          await writeFile(
             owner,
             repo,
             path,
