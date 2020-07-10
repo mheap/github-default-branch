@@ -15,8 +15,10 @@ For each repo, this tool will:
 
 ## Installation
 
-```bash
-npm install -g github-default-branch
+```
+git clone https://github.com/6RiverSystems/github-default-branch.git
+cd github-default-branch
+npm i
 ```
 
 ## Authentication
