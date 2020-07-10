@@ -4,18 +4,18 @@ const replaceAll = require("string.prototype.replaceall");
 
 const ls = util.promisify(fs.readdir);
 
-module.exports = async function (context) {
+module.exports = async function (options) {
   const {
     owner,
     repo,
     octokit,
     isVerbose,
     isDryRun,
-  } = context;
+  } = options;
   const replacementsDir = `${__dirname}/replacements`;
   const files = (await ls(replacementsDir)).filter((f) => f.endsWith('.js'));
   const replacements = files.reduce((acc, next) => {
-    const { path, replacements } = require(`${replacementsDir}/${next}`)(context);
+    const { path, replacements } = require(`${replacementsDir}/${next}`)(options);
     return Object.assign(acc, { [path]: replacements });
   }, {});
   for (let path in replacements) {
