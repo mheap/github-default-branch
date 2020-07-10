@@ -154,12 +154,11 @@
     }
 
     const {
-      data: { default_branch },
+      data: { default_branch: defaultBranch },
     } = await octokit.repos.get({
       owner,
       repo
     });
-    const defaultBranch = default_branch;
 
     if (!isDryRun && defaultBranch === old) {
       // Update the default branch in the repo
