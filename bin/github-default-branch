@@ -155,7 +155,7 @@
 
     const {
       data: { default_branch },
-    }= await octokit.repos.get({
+    } = await octokit.repos.get({
       owner,
       repo
     });
