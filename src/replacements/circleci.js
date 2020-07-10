@@ -1,4 +1,4 @@
-module.exports = function (owner, repo, old, target) {
+module.exports = function ({old, target}) {
     return {
         path: ".circleci/config.yml",
         replacements: [

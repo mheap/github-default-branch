@@ -58,8 +58,9 @@
   const updateContent = require("../src/update-content");
   const updateBranchProtection = require("../src/branch-protection");
 
-  const old = argv.old || "master";
-  const target = argv.new || "main";
+  const old = argv.old;
+  const target = argv.new;
+  const verbose = argv.verbose;
 
   // Make sure they want to do this
   if (!(await confirmation(argv.confirm, old, target))) {
@@ -70,7 +71,7 @@
     auth: argv.pat || process.env.GITHUB_TOKEN,
   });
 
-  if (argv.verbose) {
+  if (verbose) {
     const {
       data: {
         rate: { remaining },
@@ -86,7 +87,7 @@
     return;
   }
   for (let r of repos) {
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Processing ${r}`);
     }
 
@@ -101,12 +102,12 @@
       continue;
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Creating branch [${target}] at [${currentMasterSha}]`);
     }
 
     if (!isDryRun) {
-      const mainBranch = await createBranch(
+      await createBranch(
         owner,
         repo,
         target,
@@ -133,7 +134,7 @@
         continue;
       }
 
-      if (argv.verbose) {
+      if (verbose) {
         console.log(
           `✏️  Updating pull request [#${pr.number}] in [${repo}] from [${pr.base.ref}] to [${target}]`
         );
@@ -149,7 +150,7 @@
       }
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Updating default branch to [${target}] in [${repo}]`);
     }
 
@@ -169,7 +170,7 @@
       });
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Changing branch protections`);
     }
 
@@ -177,7 +178,7 @@
       await updateBranchProtection(owner, repo, old, target, octokit);
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Deleting old branch [${old}] in ${repo}`);
     }
 
@@ -189,18 +190,18 @@
     }
 
     // Update all content on the branch
-    await updateContent(
+    await updateContent({
       owner,
       repo,
       old,
       target,
       octokit,
-      argv.verbose,
+      verbose,
       isDryRun
-    );
+    });
 
     // Add an empty new line to break up the output for each repo
-    if (argv.verbose) {
+    if (verbose) {
       console.log("");
     }
   }
