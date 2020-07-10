@@ -12,7 +12,6 @@
     old: {type: "string", default: "master", description: "The name of the branch to rename"},
     new: {type: "string", default: "main", description: "The new branch name"},
     confirm: {type: "boolean", default: false, description: "Run without prompting for confirmation"},
-    keepDefault: {type: "boolean", default: false, description: "Retain the original default branch"}
   }).example([
     ["$0 --pat <token> --repo user/repo", "Rename master to main"],
     ["$0 --pat <token> --repo user/repo --old dev --new develop", "Rename dev to develop"],
@@ -151,11 +150,18 @@
       }
     }
 
-    if (verbose && !argv.keepDefault) {
+    if (verbose) {
       console.log(`✏️  Updating default branch to [${target}] in [${repo}]`);
     }
 
-    if (!isDryRun && !argv.keepDefault) {
+    const {
+      data: { default_branch: defaultBranch },
+    } = await octokit.repos.get({
+      owner,
+      repo
+    });
+
+    if (!isDryRun && defaultBranch === old) {
       // Update the default branch in the repo
       await octokit.repos.update({
         owner,
