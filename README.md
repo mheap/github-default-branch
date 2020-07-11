@@ -84,7 +84,15 @@ Add a file to src/replacements with a .js extension
 Like this:
 
 ```javascript
-module.exports = function ({ owner, repo, old, target, octokit, verbose, isDryRun }) {
+module.exports = function ({
+    owner, // string - repo owner
+    repo, // string - repo name
+    old, // string - old branch name
+    target, // string - new branch name
+    octokit, // Octokit - oktokit instance
+    verbose, // boolean - verbose flag
+    isDryRun, // boolean - dry run flag
+}) {
     // code goes here
     return {
         path: '<path to file in repo>',
