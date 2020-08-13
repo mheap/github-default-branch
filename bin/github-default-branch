@@ -52,6 +52,28 @@
         default: false,
         description: "Run without prompting for confirmation",
       },
+      "base-url": {
+        type: "string",
+        description: "Set a custom API base URL for use with GitHub Enterprise (example: https://github.example.com/api/v3)",
+      },
+      // Plugin needed to use the old /git/refs/ API instead of the newer
+      // /git/ref/ API introduced in v2.19.
+      // https://developer.github.com/enterprise/2.18/v3/git/refs/
+      // https://developer.github.com/enterprise/2.19/v3/git/refs/
+      "enterprise-compatibility": {
+        type: "boolean",
+        default: false,
+        description: "Load Ocotkit plugin for improving compatibility with older versions of GitHub Enterprise API (needed for GitHub Enterprise versions before v2.19)",
+      },
+      // "updateBranchProtectionRule" GraphQL mutation not supported in
+      // versions of the API prior to 2.15.
+      // https://developer.github.com/enterprise/2.14/v4/mutation/
+      // https://developer.github.com/enterprise/2.15/v4/mutation/
+      "skip-update-branch-protection": {
+        type: "boolean",
+        default: false,
+        description: "Skip updating branch protection (not supported in GitHub Enterprise API versions before v2.15)",
+      },
     })
     .example([
       ["$0 --pat <token> --repo user/repo", "Rename master to main"],
@@ -113,17 +135,36 @@
     return;
   }
 
-  const octokit = new Octokit({
+  let OctokitClass = Octokit;
+  if (argv.enterpriseCompatibility) {
+    const { enterpriseCompatibility } = require("@octokit/plugin-enterprise-compatibility");
+    OctokitClass = Octokit.plugin(enterpriseCompatibility);
+  }
+
+  let octokitArgs = {
     auth: argv.pat || process.env.GITHUB_TOKEN,
-  });
+  };
+
+  if (argv.baseUrl) {
+    octokitArgs.baseUrl = argv.baseUrl;
+  }
+
+  const octokit = new OctokitClass(octokitArgs);
 
   if (argv.verbose) {
-    const {
-      data: {
-        rate: { remaining },
-      },
-    } = await octokit.rateLimit.get();
-    console.log(`You have ${remaining} API requests remaining\n`);
+    try {
+      const {
+        data: {
+          rate: { remaining },
+        },
+      } = await octokit.rateLimit.get();
+      console.log(`You have ${remaining} API requests remaining\n`);
+    } catch (e) {
+      // GitHub Enterprise API versions may not support getting the rate
+      // limits, so only log this as a warning, rather than treating errors as
+      // fatal.
+      console.log(`⚠️  Unable to determine rate limits: ${e.message}\n`)
+    }
   }
 
   const repos = await getRepos(argv, octokit);
@@ -205,6 +246,10 @@
       await octokit.repos.update({
         owner,
         repo,
+        // The `name` parameter must be included for compatibility with older
+        // GitHub Enterprise API versions:
+        // https://github.community/t/cannot-change-default-branch/13728/13
+        name: repo,
         default_branch: target,
       });
     }
@@ -213,7 +258,7 @@
       console.log(`✏️  Changing branch protections`);
     }
 
-    if (!isDryRun) {
+    if (!isDryRun && !argv.skipUpdateBranchProtection) {
       await updateBranchProtection(owner, repo, old, target, octokit);
     }
 
