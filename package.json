@@ -4,7 +4,7 @@
   "description": "Rename your default branch on GitHub",
   "main": "index.js",
   "scripts": {
-    "test": "echo 'No tests found'"
+    "test": "jest"
   },
   "keywords": [
     "github",
@@ -25,5 +25,8 @@
   },
   "bin": {
     "github-default-branch": "./bin/github-default-branch"
+  },
+  "devDependencies": {
+    "jest": "^26.4.2"
   }
 }
