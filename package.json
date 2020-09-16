@@ -4,7 +4,7 @@
   "description": "Rename your default branch on GitHub",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "echo 'No tests found'"
   },
   "keywords": [
     "github",
