@@ -15,8 +15,16 @@ For each repo, this tool will:
 
 ## Installation
 
-```bash
+```shell
 npm install -g github-default-branch
+```
+
+## Development
+
+```shell
+git clone https://github.com/6RiverSystems/github-default-branch.git
+cd github-default-branch
+npm ci
 ```
 
 ## Authentication
@@ -58,3 +66,54 @@ Run with the `--verbose` flag to see debug information
 | --old             | The name of the branch to rename                               | master  |
 | --new             | The new branch name                                            | main    |
 | --confirm         | Run without prompting for confirmation                         | false   |
+
+## Replacements
+
+Part of this script checks for the existence of files and updates their contents. Replacements are the mechanism for these updates.
+
+### How it Works
+
+Each .js file in the src/replacements folder is given a chance to run during the content updating step of the script. Each file in src/replacements is expected to export a function, that function receives all of the options that are available to the outmost script.
+
+If there is nothing to replace, then the script moves on to the next replacement.
+
+### How to Add a Replacement
+
+Add a file to src/replacements with a .js extension
+
+Like this:
+
+```javascript
+module.exports = function ({
+    owner, // string - repo owner
+    repo, // string - repo name
+    old, // string - old branch name
+    target, // string - new branch name
+    octokit, // Octokit - oktokit instance
+    verbose, // boolean - verbose flag
+    isDryRun, // boolean - dry run flag
+}) {
+    // code goes here
+    return {
+        path: '<path to file in repo>',
+        replacements: [
+            {
+                from: '<from pattern>',
+                to: '<to pattern>',
+            },
+            {
+                from: '<from pattern>',
+                to: '<to pattern>',
+            },
+        ],
+    };
+}
+
+```
+
+The file with the path in your repo will have any line matching `from` be swapped out with `to`
+
+
+### Known Issues
+
+The replacement system gives you octokit, that's great! Unfortunately replacement functions do not currently support asynchronous calls, that's bad.
