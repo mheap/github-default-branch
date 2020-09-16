@@ -105,8 +105,8 @@
   const updateContent = require("../src/update-content");
   const updateBranchProtection = require("../src/branch-protection");
 
-  const old = argv.old;
-  const target = argv.new;
+  const old = argv.old || "master";
+  const target = argv.new || "main";
   const verbose = argv.verbose;
 
   // Make sure they want to do this
@@ -145,7 +145,7 @@
       currentMasterSha = await getBranchSha(owner, repo, old, octokit);
     } catch (e) {
       // Typically, this will fail when the old branch, i.e. master, doesn't exist.
-      console.log(`⚠️  Skipping ${r}: ${e.message}\n`)
+      console.log(`⚠️  Skipping ${r}: ${e.message}\n`);
       continue;
     }
 
@@ -154,13 +154,7 @@
     }
 
     if (!isDryRun) {
-      await createBranch(
-        owner,
-        repo,
-        target,
-        currentMasterSha,
-        octokit
-      );
+      await createBranch(owner, repo, target, currentMasterSha, octokit);
     }
 
     // List all PRs
@@ -205,16 +199,22 @@
       data: { default_branch: defaultBranch },
     } = await octokit.repos.get({
       owner,
-      repo
+      repo,
     });
 
-    if (!isDryRun && defaultBranch === old) {
-      // Update the default branch in the repo
-      await octokit.repos.update({
-        owner,
-        repo,
-        default_branch: target,
-      });
+    if (!isDryRun) {
+      if (defaultBranch === old) {
+        // Update the default branch in the repo
+        await octokit.repos.update({
+          owner,
+          repo,
+          default_branch: target,
+        });
+      } else {
+        console.log(
+          `✏️  Default branch is different to 'old' value. Not updating default branch`
+        );
+      }
     }
 
     if (verbose) {
@@ -244,7 +244,7 @@
       target,
       octokit,
       verbose,
-      isDryRun
+      isDryRun,
     });
 
     // Add an empty new line to break up the output for each repo

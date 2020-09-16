@@ -22,7 +22,7 @@ npm install -g github-default-branch
 ## Development
 
 ```shell
-git clone https://github.com/6RiverSystems/github-default-branch.git
+git clone https://github.com/mheap/github-default-branch.git
 cd github-default-branch
 npm ci
 ```
@@ -85,34 +85,32 @@ Like this:
 
 ```javascript
 module.exports = function ({
-    owner, // string - repo owner
-    repo, // string - repo name
-    old, // string - old branch name
-    target, // string - new branch name
-    octokit, // Octokit - oktokit instance
-    verbose, // boolean - verbose flag
-    isDryRun, // boolean - dry run flag
+  owner, // string - repo owner
+  repo, // string - repo name
+  old, // string - old branch name
+  target, // string - new branch name
+  octokit, // Octokit - oktokit instance
+  verbose, // boolean - verbose flag
+  isDryRun, // boolean - dry run flag
 }) {
-    // code goes here
-    return {
-        path: '<path to file in repo>',
-        replacements: [
-            {
-                from: '<from pattern>',
-                to: '<to pattern>',
-            },
-            {
-                from: '<from pattern>',
-                to: '<to pattern>',
-            },
-        ],
-    };
-}
-
+  // code goes here
+  return {
+    path: "<path to file in repo>",
+    replacements: [
+      {
+        from: "<from pattern>",
+        to: "<to pattern>",
+      },
+      {
+        from: "<from pattern>",
+        to: "<to pattern>",
+      },
+    ],
+  };
+};
 ```
 
 The file with the path in your repo will have any line matching `from` be swapped out with `to`
-
 
 ### Known Issues
 
