@@ -129,6 +129,7 @@
 
   const old = argv.old || "master";
   const target = argv.new || "main";
+  const verbose = argv.verbose;
 
   // Make sure they want to do this
   if (!(await confirmation(argv.confirm, old, target))) {
@@ -151,7 +152,7 @@
 
   const octokit = new OctokitClass(octokitArgs);
 
-  if (argv.verbose) {
+  if (verbose) {
     try {
       const {
         data: {
@@ -174,7 +175,7 @@
     return;
   }
   for (let r of repos) {
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Processing ${r}`);
     }
 
@@ -185,22 +186,16 @@
       currentMasterSha = await getBranchSha(owner, repo, old, octokit);
     } catch (e) {
       // Typically, this will fail when the old branch, i.e. master, doesn't exist.
-      console.log(`⚠️  Skipping ${r}: ${e.message}\n`)
+      console.log(`⚠️  Skipping ${r}: ${e.message}\n`);
       continue;
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Creating branch [${target}] at [${currentMasterSha}]`);
     }
 
     if (!isDryRun) {
-      const mainBranch = await createBranch(
-        owner,
-        repo,
-        target,
-        currentMasterSha,
-        octokit
-      );
+      await createBranch(owner, repo, target, currentMasterSha, octokit);
     }
 
     // List all PRs
@@ -221,7 +216,7 @@
         continue;
       }
 
-      if (argv.verbose) {
+      if (verbose) {
         console.log(
           `✏️  Updating pull request [#${pr.number}] in [${repo}] from [${pr.base.ref}] to [${target}]`
         );
@@ -237,24 +232,37 @@
       }
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Updating default branch to [${target}] in [${repo}]`);
     }
 
+    const {
+      data: { default_branch: defaultBranch },
+    } = await octokit.repos.get({
+      owner,
+      repo,
+    });
+
     if (!isDryRun) {
-      // Update the default branch in the repo
-      await octokit.repos.update({
-        owner,
-        repo,
-        // The `name` parameter must be included for compatibility with older
-        // GitHub Enterprise API versions:
-        // https://github.community/t/cannot-change-default-branch/13728/13
-        name: repo,
-        default_branch: target,
-      });
+      if (defaultBranch === old) {
+        // Update the default branch in the repo
+        await octokit.repos.update({
+          owner,
+          repo,
+          // The `name` parameter must be included for compatibility with older
+          // GitHub Enterprise API versions:
+          // https://github.community/t/cannot-change-default-branch/13728/13
+          name: repo,
+          default_branch: target,
+        });
+      } else {
+        console.log(
+          `✏️  Default branch is different to 'old' value. Not updating default branch`
+        );
+      }
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Changing branch protections`);
     }
 
@@ -262,7 +270,7 @@
       await updateBranchProtection(owner, repo, old, target, octokit);
     }
 
-    if (argv.verbose) {
+    if (verbose) {
       console.log(`✏️  Deleting old branch [${old}] in ${repo}`);
     }
 
@@ -274,18 +282,18 @@
     }
 
     // Update all content on the branch
-    await updateContent(
+    await updateContent({
       owner,
       repo,
       old,
       target,
       octokit,
-      argv.verbose,
-      isDryRun
-    );
+      verbose,
+      isDryRun,
+    });
 
     // Add an empty new line to break up the output for each repo
-    if (argv.verbose) {
+    if (verbose) {
       console.log("");
     }
   }
