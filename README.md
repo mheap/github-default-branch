@@ -53,19 +53,20 @@ Run with the `--verbose` flag to see debug information
 
 ## Options
 
-| Flag              | Description                                                    | Default |
-| ----------------- | -------------------------------------------------------------- | ------- |
-| --pat <token>     | GitHub API Token                                               | N/A     |
-| --repo <name>     | The repo to update (format: user/repo)                         | N/A     |
-| --user <name>     | Update all repos owned by the provided user (example: my-user) | N/A     |
-| --org <name>      | Update all repos in the provided org (example: my-org-name)    | N/A     |
-| --keep-old        | Keep the old branch rather than deleting it                    | false   |
-| --dry-run         | Output log messages only. Do not make any changes              | false   |
-| --list-repos-only | List repos that would be affected, then exit                   | false   |
-| --skip-forks      | Skips forked repositories                                      | false   |
-| --old             | The name of the branch to rename                               | master  |
-| --new             | The new branch name                                            | main    |
-| --confirm         | Run without prompting for confirmation                         | false   |
+| Flag                            | Description                                                    | Default |
+| ------------------------------- | -------------------------------------------------------------- | ------- |
+| --pat <token>                   | GitHub API Token                                               | N/A     |
+| --repo <name>                   | The repo to update (format: user/repo)                         | N/A     |
+| --user <name>                   | Update all repos owned by the provided user (example: my-user) | N/A     |
+| --org <name>                    | Update all repos in the provided org (example: my-org-name)    | N/A     |
+| --keep-old                      | Keep the old branch rather than deleting it                    | false   |
+| --dry-run                       | Output log messages only. Do not make any changes              | false   |
+| --list-repos-only               | List repos that would be affected, then exit                   | false   |
+| --skip-forks                    | Skips forked repositories                                      | false   |
+| --skip-update-branch-protection | Skip updating branch protections                               | false   |
+| --old                           | The name of the branch to rename                               | master  |
+| --new                           | The new branch name                                            | main    |
+| --confirm                       | Run without prompting for confirmation                         | false   |
 
 ## Replacements
 

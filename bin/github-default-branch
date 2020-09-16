@@ -54,7 +54,8 @@
       },
       "base-url": {
         type: "string",
-        description: "Set a custom API base URL for use with GitHub Enterprise (example: https://github.example.com/api/v3)",
+        description:
+          "Set a custom API base URL for use with GitHub Enterprise (example: https://github.example.com/api/v3)",
       },
       // Plugin needed to use the old /git/refs/ API instead of the newer
       // /git/ref/ API introduced in v2.19.
@@ -63,7 +64,8 @@
       "enterprise-compatibility": {
         type: "boolean",
         default: false,
-        description: "Load Ocotkit plugin for improving compatibility with older versions of GitHub Enterprise API (needed for GitHub Enterprise versions before v2.19)",
+        description:
+          "Load Octokit plugin for improving compatibility with older versions of GitHub Enterprise API (needed for GitHub Enterprise versions before v2.19)",
       },
       // "updateBranchProtectionRule" GraphQL mutation not supported in
       // versions of the API prior to 2.15.
@@ -72,7 +74,8 @@
       "skip-update-branch-protection": {
         type: "boolean",
         default: false,
-        description: "Skip updating branch protection (not supported in GitHub Enterprise API versions before v2.15)",
+        description:
+          "Skip updating branch protection (not supported in GitHub Enterprise API versions before v2.15)",
       },
     })
     .example([
@@ -138,7 +141,9 @@
 
   let OctokitClass = Octokit;
   if (argv.enterpriseCompatibility) {
-    const { enterpriseCompatibility } = require("@octokit/plugin-enterprise-compatibility");
+    const {
+      enterpriseCompatibility,
+    } = require("@octokit/plugin-enterprise-compatibility");
     OctokitClass = Octokit.plugin(enterpriseCompatibility);
   }
 
@@ -164,7 +169,7 @@
       // GitHub Enterprise API versions may not support getting the rate
       // limits, so only log this as a warning, rather than treating errors as
       // fatal.
-      console.log(`⚠️  Unable to determine rate limits: ${e.message}\n`)
+      console.log(`⚠️  Unable to determine rate limits: ${e.message}\n`);
     }
   }
 
