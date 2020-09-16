@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const run = require("../index");
 (async function () {
   const log = require("debug")("ghdb");
   const { argv } = require("yargs")
@@ -125,15 +126,7 @@
     return;
   }
 
-  const { Octokit } = require("@octokit/rest");
-
   const confirmation = require("../src/confirmation");
-  const getRepos = require("../src/get-repos");
-  const getBranchSha = require("../src/get-branch-sha");
-  const createBranch = require("../src/create-branch");
-  const removeBranch = require("../src/remove-branch");
-  const updateContent = require("../src/update-content");
-  const updateBranchProtection = require("../src/branch-protection");
 
   const old = argv.old || "master";
   const target = argv.new || "main";
@@ -143,153 +136,7 @@
     return;
   }
 
-  let OctokitClass = Octokit;
-  if (argv.enterpriseCompatibility) {
-    const {
-      enterpriseCompatibility,
-    } = require("@octokit/plugin-enterprise-compatibility");
-    OctokitClass = Octokit.plugin(enterpriseCompatibility);
-  }
+  await run(argv);
 
-  let octokitArgs = {
-    auth: argv.pat || process.env.GITHUB_TOKEN,
-  };
-
-  if (argv.baseUrl) {
-    octokitArgs.baseUrl = argv.baseUrl;
-  }
-
-  const octokit = new OctokitClass(octokitArgs);
-
-  try {
-    const {
-      data: {
-        rate: { remaining },
-      },
-    } = await octokit.rateLimit.get();
-    log(`You have ${remaining} API requests remaining`);
-  } catch (e) {
-    // GitHub Enterprise API versions may not support getting the rate
-    // limits, so only log this as a warning, rather than treating errors as
-    // fatal.
-    log(`⚠️  Unable to determine rate limits: ${e.message}\n`);
-  }
-
-  const repos = await getRepos(argv, octokit);
-
-  if (argv.listReposOnly) {
-    log(repos.join("\n"));
-    return;
-  }
-
-  for (let r of repos) {
-    log(`✏️  Processing ${r}`);
-
-    const [owner, repo] = r.split("/", 2);
-    let currentMasterSha;
-
-    try {
-      currentMasterSha = await getBranchSha(owner, repo, old, octokit);
-    } catch (e) {
-      // Typically, this will fail when the old branch, i.e. master, doesn't exist.
-      log(`⚠️  Skipping ${r}: ${e.message}\n`);
-      continue;
-    }
-
-    log(`✏️  Creating branch [${target}] at [${currentMasterSha}]`);
-
-    if (!isDryRun) {
-      await createBranch(owner, repo, target, currentMasterSha, octokit);
-    }
-
-    // List all PRs
-    let pulls = await octokit.paginate(
-      "GET /repos/:owner/:repo/pulls",
-      {
-        owner,
-        repo,
-        state: "open",
-        per_page: 100,
-      },
-      (response) => response.data
-    );
-
-    // Update the target branch for all open PRs
-    for (let pr of pulls) {
-      if (pr.base.ref != old) {
-        continue;
-      }
-
-      log(
-        `✏️  Updating pull request [#${pr.number}] in [${repo}] from [${pr.base.ref}] to [${target}]`
-      );
-
-      if (!isDryRun) {
-        await octokit.pulls.update({
-          owner,
-          repo,
-          pull_number: pr.number,
-          base: target,
-        });
-      }
-    }
-
-    log(`✏️  Updating default branch to [${target}] in [${repo}]`);
-
-    const {
-      data: { default_branch: defaultBranch },
-    } = await octokit.repos.get({
-      owner,
-      repo,
-    });
-
-    if (!isDryRun) {
-      if (defaultBranch === old) {
-        // Update the default branch in the repo
-        await octokit.repos.update({
-          owner,
-          repo,
-          // The `name` parameter must be included for compatibility with older
-          // GitHub Enterprise API versions:
-          // https://github.community/t/cannot-change-default-branch/13728/13
-          name: repo,
-          default_branch: target,
-        });
-      } else {
-        log(
-          `✏️  Default branch is different to 'old' value. Not updating default branch`
-        );
-      }
-    }
-
-    log(`✏️  Changing branch protections`);
-
-    if (!isDryRun && !argv.skipUpdateBranchProtection) {
-      await updateBranchProtection(owner, repo, old, target, octokit);
-    }
-
-    log(`✏️  Deleting old branch [${old}] in ${repo}`);
-
-    if (!isDryRun) {
-      // Remove old branch if required
-      if (!argv.keepOld) {
-        await removeBranch(owner, repo, old, octokit);
-      }
-    }
-
-    // Update all content on the branch
-    await updateContent({
-      owner,
-      repo,
-      old,
-      target,
-      octokit,
-      isDryRun,
-    });
-
-    // Add an empty new line to break up the output for each repo
-    log("");
-  }
-
-  log("✅ Complete");
+  log("Complete");
 })();

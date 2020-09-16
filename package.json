@@ -28,6 +28,7 @@
     "github-default-branch": "./bin/github-default-branch"
   },
   "devDependencies": {
-    "jest": "^26.4.2"
+    "jest": "^26.4.2",
+    "nock": "^13.0.4"
   }
 }
