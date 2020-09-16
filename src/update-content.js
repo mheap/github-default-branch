@@ -1,11 +1,12 @@
 const fs = require("fs");
 const util = require("util");
 const replaceAll = require("string.prototype.replaceall");
+const log = require("debug")("ghdb:update-content");
 
 const ls = util.promisify(fs.readdir);
 
 module.exports = async function (options) {
-  const { owner, repo, octokit, verbose, isDryRun } = options;
+  const { owner, repo, octokit, isDryRun } = options;
   const replacementsDir = `${__dirname}/replacements`;
   const files = (await ls(replacementsDir)).filter((f) => f.endsWith(".js"));
   const replacements = files.reduce((acc, next) => {
@@ -24,21 +25,15 @@ module.exports = async function (options) {
       }
 
       if (content !== file.content) {
-        if (verbose) {
-          console.log(`✏️  Updating [${path}]`);
-        }
+        log(`✏️  Updating [${path}]`);
         if (!isDryRun) {
           await writeFile(owner, repo, path, content, file.sha, octokit);
         }
       } else {
-        if (verbose) {
-          console.log(`✏️  No changes detected in [${path}]`);
-        }
+        log(`✏️  No changes detected in [${path}]`);
       }
     } catch (e) {
-      if (verbose) {
-        console.log(`✏️  Unable to update [${path}]`);
-      }
+      log(`✏️  Unable to update [${path}]`);
     }
   }
 };

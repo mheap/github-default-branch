@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 (async function () {
+  const log = require("debug")("ghdb");
   const { argv } = require("yargs")
     .options({
       pat: { type: "string", description: "GitHub API Token" },
@@ -93,15 +94,14 @@
         "$0 --pat <token> --org my-org-name",
         "Rename all repos owned by an org",
       ],
+      [
+        "$0 --pat <token> --org my-org-name --team my-team-slug",
+        "Rename all repos owned by a team within an org",
+      ],
       ["$0 --pat <token> --user my-user", "Rename all repos owned by a user"],
     ]);
 
   const isDryRun = !!argv.dryRun;
-
-  // Force verbose output in dry run mode
-  if (isDryRun) {
-    argv.verbose = true;
-  }
 
   // Up front validation
   const providedRepoSelectors = [argv.org, argv.user, argv.repo].filter(
@@ -109,17 +109,17 @@
   ).length;
 
   if (providedRepoSelectors === 0) {
-    console.log("❎ You must provide --org, --user or --repo");
+    console.error("❎ You must provide --org, --user or --repo");
     return;
   }
 
   if (providedRepoSelectors > 1) {
-    console.log("❎ Only --org OR --user OR --repo is supported");
+    console.error("❎ Only --org OR --user OR --repo is supported");
     return;
   }
 
   if (!argv.pat && !process.env.GITHUB_TOKEN) {
-    console.log(
+    console.error(
       "❎ Provide a GitHub Access Token using --pat <token> or using the GITHUB_TOKEN environment variable"
     );
     return;
@@ -137,7 +137,6 @@
 
   const old = argv.old || "master";
   const target = argv.new || "main";
-  const verbose = argv.verbose;
 
   // Make sure they want to do this
   if (!(await confirmation(argv.confirm, old, target))) {
@@ -162,32 +161,29 @@
 
   const octokit = new OctokitClass(octokitArgs);
 
-  if (verbose) {
-    try {
-      const {
-        data: {
-          rate: { remaining },
-        },
-      } = await octokit.rateLimit.get();
-      console.log(`You have ${remaining} API requests remaining\n`);
-    } catch (e) {
-      // GitHub Enterprise API versions may not support getting the rate
-      // limits, so only log this as a warning, rather than treating errors as
-      // fatal.
-      console.log(`⚠️  Unable to determine rate limits: ${e.message}\n`);
-    }
+  try {
+    const {
+      data: {
+        rate: { remaining },
+      },
+    } = await octokit.rateLimit.get();
+    log(`You have ${remaining} API requests remaining`);
+  } catch (e) {
+    // GitHub Enterprise API versions may not support getting the rate
+    // limits, so only log this as a warning, rather than treating errors as
+    // fatal.
+    log(`⚠️  Unable to determine rate limits: ${e.message}\n`);
   }
 
   const repos = await getRepos(argv, octokit);
 
   if (argv.listReposOnly) {
-    console.log(repos.join("\n"));
+    log(repos.join("\n"));
     return;
   }
+
   for (let r of repos) {
-    if (verbose) {
-      console.log(`✏️  Processing ${r}`);
-    }
+    log(`✏️  Processing ${r}`);
 
     const [owner, repo] = r.split("/", 2);
     let currentMasterSha;
@@ -196,13 +192,11 @@
       currentMasterSha = await getBranchSha(owner, repo, old, octokit);
     } catch (e) {
       // Typically, this will fail when the old branch, i.e. master, doesn't exist.
-      console.log(`⚠️  Skipping ${r}: ${e.message}\n`);
+      log(`⚠️  Skipping ${r}: ${e.message}\n`);
       continue;
     }
 
-    if (verbose) {
-      console.log(`✏️  Creating branch [${target}] at [${currentMasterSha}]`);
-    }
+    log(`✏️  Creating branch [${target}] at [${currentMasterSha}]`);
 
     if (!isDryRun) {
       await createBranch(owner, repo, target, currentMasterSha, octokit);
@@ -226,11 +220,9 @@
         continue;
       }
 
-      if (verbose) {
-        console.log(
-          `✏️  Updating pull request [#${pr.number}] in [${repo}] from [${pr.base.ref}] to [${target}]`
-        );
-      }
+      log(
+        `✏️  Updating pull request [#${pr.number}] in [${repo}] from [${pr.base.ref}] to [${target}]`
+      );
 
       if (!isDryRun) {
         await octokit.pulls.update({
@@ -242,9 +234,7 @@
       }
     }
 
-    if (verbose) {
-      console.log(`✏️  Updating default branch to [${target}] in [${repo}]`);
-    }
+    log(`✏️  Updating default branch to [${target}] in [${repo}]`);
 
     const {
       data: { default_branch: defaultBranch },
@@ -266,23 +256,19 @@
           default_branch: target,
         });
       } else {
-        console.log(
+        log(
           `✏️  Default branch is different to 'old' value. Not updating default branch`
         );
       }
     }
 
-    if (verbose) {
-      console.log(`✏️  Changing branch protections`);
-    }
+    log(`✏️  Changing branch protections`);
 
     if (!isDryRun && !argv.skipUpdateBranchProtection) {
       await updateBranchProtection(owner, repo, old, target, octokit);
     }
 
-    if (verbose) {
-      console.log(`✏️  Deleting old branch [${old}] in ${repo}`);
-    }
+    log(`✏️  Deleting old branch [${old}] in ${repo}`);
 
     if (!isDryRun) {
       // Remove old branch if required
@@ -298,15 +284,12 @@
       old,
       target,
       octokit,
-      verbose,
       isDryRun,
     });
 
     // Add an empty new line to break up the output for each repo
-    if (verbose) {
-      console.log("");
-    }
+    log("");
   }
 
-  console.log("✅ Complete");
+  log("✅ Complete");
 })();

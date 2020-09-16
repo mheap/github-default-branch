@@ -19,6 +19,7 @@
   "dependencies": {
     "@octokit/plugin-enterprise-compatibility": "^1.2.5",
     "@octokit/rest": "^18.0.0",
+    "debug": "^4.1.1",
     "prompt-confirm": "^2.0.4",
     "string.prototype.replaceall": "^1.0.3",
     "yargs": "^15.4.0"
