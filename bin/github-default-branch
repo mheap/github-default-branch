@@ -17,6 +17,11 @@
         description:
           "Update all repos in the provided org (example: my-org-name)",
       },
+      team: {
+        type: "string",
+        description:
+          "Update all repos in the provided team (example: my-team-name), only usable in combination with org parameter",
+      },
       "keep-old": {
         type: "boolean",
         default: false,

@@ -4,11 +4,23 @@ module.exports = async function (args, octokit) {
   }
 
   let repos = [];
-  if (args.org) {
+  if (args.org && !args.team) {
     repos = await octokit.paginate(
       octokit.repos.listForOrg,
       {
         org: args.org,
+        per_page: 100
+      },
+      (response) => response.data
+    );
+  }
+
+  if (args.org && args.team) {
+    repos = await octokit.paginate(
+      octokit.teams.listReposInOrg,
+      {
+        org: args.org,
+        team_slug: args.team,
         per_page: 100
       },
       (response) => response.data
