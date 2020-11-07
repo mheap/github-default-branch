@@ -29,6 +29,24 @@ describe("#list-repos", () => {
     });
   });
 
+  it("returns repos owned by a team", async () => {
+    nock("https://api.github.com/")
+      .get("/orgs/demo/teams/devrel/repos?per_page=100")
+      .reply(200, [
+        {
+          full_name: "demo/repo",
+        },
+        {
+          full_name: "demo/other",
+        },
+      ]);
+    expect(
+      await listRepos({ org: "demo", team: "devrel", octokit, log })
+    ).toEqual({
+      repos: ["demo/repo", "demo/other"],
+    });
+  });
+
   it("returns repos for a user", async () => {
     nock("https://api.github.com/")
       .get("/user/repos?per_page=100")

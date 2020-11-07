@@ -2,7 +2,7 @@
 
 Rename your default branch on GitHub easily. By default it renames `master` to `main`, but is configurable using the `--new` and `--old` flags.
 
-If provided with an `--org` argument, it will run on all repositories within that organisation. Alternatively, you can provide a `--repo` argument to edit a single repo.
+If provided with an `--org`, `--user` or (`--org` and `--team`) arguments, it will run on all repositories owned by that org, user or team. Alternatively, you can provide a `--repo` argument to edit a single repo. See [Usage](#usage) for more examples.
 
 For each repo, this tool will:
 
@@ -47,6 +47,9 @@ github-default-branch --pat <token> --org my-org-name
 
 # Rename all repos owned by a user
 github-default-branch --pat <token> --user my-user
+
+# Rename all repos owned by a team
+github-default-branch --pat <token> --org my-org-name --team my-team-slug
 ```
 
 Set `DEBUG="ghdb*"` as an environment variable to see debug information

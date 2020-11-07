@@ -1,4 +1,12 @@
-module.exports = async function ({ log, org, repo, user, skipForks, octokit }) {
+module.exports = async function ({
+  log,
+  org,
+  team,
+  repo,
+  user,
+  skipForks,
+  octokit,
+}) {
   log = log.extend("data:list-repos");
 
   if (repo) {
@@ -7,12 +15,24 @@ module.exports = async function ({ log, org, repo, user, skipForks, octokit }) {
   }
 
   let repos = [];
-  if (org) {
+  if (org && !team) {
     log(`Fetching repos for org: ${org}`);
     repos = await octokit.paginate(
       octokit.repos.listForOrg,
       {
         org,
+        per_page: 100,
+      },
+      (response) => response.data
+    );
+  }
+
+  if (org && team) {
+    repos = await octokit.paginate(
+      octokit.teams.listReposInOrg,
+      {
+        org,
+        team_slug: team,
         per_page: 100,
       },
       (response) => response.data
