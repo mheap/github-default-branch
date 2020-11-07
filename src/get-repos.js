@@ -9,7 +9,7 @@ module.exports = async function (args, octokit) {
       octokit.repos.listForOrg,
       {
         org: args.org,
-        per_page: 100
+        per_page: 100,
       },
       (response) => response.data
     );
@@ -21,7 +21,7 @@ module.exports = async function (args, octokit) {
       {
         org: args.org,
         team_slug: args.team,
-        per_page: 100
+        per_page: 100,
       },
       (response) => response.data
     );
@@ -31,7 +31,7 @@ module.exports = async function (args, octokit) {
     repos = await octokit.paginate(
       octokit.repos.listForAuthenticatedUser,
       {
-        per_page: 100
+        per_page: 100,
       },
       (response) => response.data
     );

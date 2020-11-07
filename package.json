@@ -4,7 +4,9 @@
   "description": "Rename your default branch on GitHub",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint bin/* data-sources/*.js replacements/*.js src/*.js transforms/*.js",
+    "lint-fix": "eslint --fix bin/* data-sources/*.js replacements/*.js src/*.js transforms/*.js"
   },
   "keywords": [
     "github",
@@ -28,7 +30,10 @@
     "github-default-branch": "./bin/github-default-branch"
   },
   "devDependencies": {
+    "eslint": "^7.13.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.4.2",
-    "nock": "^13.0.4"
+    "nock": "^13.0.4",
+    "prettier": "^2.1.2"
   }
 }
