@@ -24,11 +24,6 @@ const run = require("../index");
         description:
           "Update all repos in the provided team (example: my-team-name), only usable in combination with org parameter",
       },
-      "keep-old": {
-        type: "boolean",
-        default: false,
-        description: "Keep the old branch rather than deleting it",
-      },
       "dry-run": {
         type: "boolean",
         default: false,
@@ -73,16 +68,6 @@ const run = require("../index");
         default: false,
         description:
           "Load Octokit plugin for improving compatibility with older versions of GitHub Enterprise API (needed for GitHub Enterprise versions before v2.19)",
-      },
-      // "updateBranchProtectionRule" GraphQL mutation not supported in
-      // versions of the API prior to 2.15.
-      // https://developer.github.com/enterprise/2.14/v4/mutation/
-      // https://developer.github.com/enterprise/2.15/v4/mutation/
-      "skip-update-branch-protection": {
-        type: "boolean",
-        default: false,
-        description:
-          "Skip updating branch protection (not supported in GitHub Enterprise API versions before v2.15)",
       },
     })
     .example([
