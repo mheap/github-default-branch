@@ -1,0 +1,17 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "impliedStrict": true,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "impliedStrict": true,
+            "experimentalObjectRestSpread": true
+        }
+    },
+    "plugins": [
+        "prettier"
+    ],
+    "rules": {
+        "prettier/prettier": "error"
+    }
+}

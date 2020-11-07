@@ -2,7 +2,7 @@
 
 Rename your default branch on GitHub easily. By default it renames `master` to `main`, but is configurable using the `--new` and `--old` flags.
 
-If provided with an `--org` argument, it will run on all repositories within that organisation. Alternatively, you can provide a `--repo` argument to edit a single repo.
+If provided with an `--org`, `--user` or (`--org` and `--team`) arguments, it will run on all repositories owned by that org, user or team. Alternatively, you can provide a `--repo` argument to edit a single repo. See [Usage](#usage) for more examples.
 
 For each repo, this tool will:
 
@@ -10,7 +10,7 @@ For each repo, this tool will:
 - Update all open pull requests to point at the new branch
 - Update the default branch for the repo
 - Delete the old branch
-- Update [known URL patterns](https://github.com/mheap/github-default-branch/blob/main/src/update-content.js) in source files
+- Update [known URL patterns](https://github.com/mheap/github-default-branch/tree/main/replacements) in source files
 - Update any branch protections for `$old` to `$new`. (This does **not** work with patterns, it has to be an exact match)
 
 ## Installation
@@ -47,27 +47,46 @@ github-default-branch --pat <token> --org my-org-name
 
 # Rename all repos owned by a user
 github-default-branch --pat <token> --user my-user
+
+# Rename all repos owned by a team
+github-default-branch --pat <token> --org my-org-name --team my-team-slug
 ```
 
-Run with the `--verbose` flag to see debug information
+Set `DEBUG="ghdb*"` as an environment variable to see debug information
 
 ## Options
 
-| Flag                            | Description                                                                                                      | Default |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------- |
-| --pat <token>                   | GitHub API Token                                                                                                 | N/A     |
-| --repo <name>                   | The repo to update (format: user/repo)                                                                           | N/A     |
-| --user <name>                   | Update all repos owned by the provided user (example: my-user)                                                   | N/A     |
-| --org <name>                    | Update all repos in the provided org (example: my-org-name)                                                      | N/A     |
-| --team <name>                   | Update all repos in the provided team (example: my-team-name), only usable in combination with org parameter     | N/A     |
-| --keep-old                      | Keep the old branch rather than deleting it                                                                      | false   |
-| --dry-run                       | Output log messages only. Do not make any changes                                                                | false   |
-| --list-repos-only               | List repos that would be affected, then exit                                                                     | false   |
-| --skip-forks                    | Skips forked repositories                                                                                        | false   |
-| --skip-update-branch-protection | Skip updating branch protections                                                                                 | false   |
-| --old                           | The name of the branch to rename                                                                                 | master  |
-| --new                           | The new branch name                                                                                              | main    |
-| --confirm                       | Run without prompting for confirmation                                                                           | false   |
+| Flag          | Description                                                                                                  | Default |
+| ------------- | ------------------------------------------------------------------------------------------------------------ | ------- |
+| --pat <token> | GitHub API Token                                                                                             | N/A     |
+| --old         | The name of the branch to rename                                                                             | master  |
+| --new         | The new branch name                                                                                          | main    |
+| --repo <name> | The repo to update (format: user/repo)                                                                       | N/A     |
+| --user <name> | Update all repos owned by the provided user (example: my-user)                                               | N/A     |
+| --org <name>  | Update all repos in the provided org (example: my-org-name)                                                  | N/A     |
+| --team <name> | Update all repos in the provided team (example: my-team-name), only usable in combination with org parameter | N/A     |
+| --dry-run     | Output log messages only. Do not make any changes                                                            | false   |
+| --skip-forks  | Skips forked repositories                                                                                    | false   |
+| --confirm     | Run without prompting for confirmation                                                                       | false   |
+
+## Skipping transforms
+
+You might want to skip any of the available transforms (such as deleting the old branch). You can add `--skip-[transform-name]` to disable the transform e.g. `--skip-delete-old-branch`.
+
+## Available transforms
+
+| Transform              | Description                                           |
+| ---------------------- | ----------------------------------------------------- |
+| update-default-branch  | Set the default branch of the repo to `$new`          |
+| retarget-pull-requests | Change the base for any open pull requests            |
+| branch-protection      | Update any branch protection rules to point at `$new` |
+| delete-old-branch      | Delete the `$old` branch                              |
+
+Pending transforms:
+
+- Copy branch protections instead of updating if `--skip-delete-old-branch` is used ([#26](https://github.com/mheap/github-default-branch/issues/26))
+- Retarget draft releases ([#30](https://github.com/mheap/github-default-branch/issues/30))
+- Update GitHub Pages configuration ([#16](https://github.com/mheap/github-default-branch/issues/16))
 
 ## Replacements
 
@@ -75,13 +94,13 @@ Part of this script checks for the existence of files and updates their contents
 
 ### How it Works
 
-Each .js file in the src/replacements folder is given a chance to run during the content updating step of the script. Each file in src/replacements is expected to export a function, that function receives all of the options that are available to the outmost script.
+Each .js file in the `replacements` folder is given a chance to run during the content updating step of the script. Each file in replacements is expected to export a function, that function receives all of the options that are available to the outmost script.
 
 If there is nothing to replace, then the script moves on to the next replacement.
 
 ### How to Add a Replacement
 
-Add a file to src/replacements with a .js extension
+Add a file to `replacements` with a .js extension
 
 Like this:
 
@@ -100,12 +119,12 @@ module.exports = function ({
     path: "<path to file in repo>",
     replacements: [
       {
-        from: "<from pattern>",
-        to: "<to pattern>",
+        from: "<from string>",
+        to: "<to string>",
       },
       {
-        from: "<from pattern>",
-        to: "<to pattern>",
+        from: "<from string>",
+        to: "<to string>",
       },
     ],
   };
@@ -113,7 +132,3 @@ module.exports = function ({
 ```
 
 The file with the path in your repo will have any line matching `from` be swapped out with `to`
-
-### Known Issues
-
-The replacement system gives you octokit, that's great! Unfortunately replacement functions do not currently support asynchronous calls, that's bad.

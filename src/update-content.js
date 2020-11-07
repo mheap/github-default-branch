@@ -1,19 +1,26 @@
 const fs = require("fs");
-const util = require("util");
 const replaceAll = require("string.prototype.replaceall");
 
-const ls = util.promisify(fs.readdir);
-
 module.exports = async function (options) {
-  const { owner, repo, octokit, verbose, isDryRun } = options;
-  const replacementsDir = `${__dirname}/replacements`;
-  const files = (await ls(replacementsDir)).filter((f) => f.endsWith(".js"));
-  const replacements = files.reduce((acc, next) => {
-    const { path, replacements } = require(`${replacementsDir}/${next}`)(
+  options.log = options.log.extend("update-content");
+  let { owner, repo, octokit, dryRun, log } = options;
+
+  // Load all replacement files
+  const replacementsDir = `${__dirname}/../replacements`;
+  const files = fs
+    .readdirSync(replacementsDir)
+    .filter((f) => f.endsWith(".js"));
+
+  // Build up a map of filename => replacements
+  const replacements = await files.reduce(async (acc, next) => {
+    acc = await acc;
+    const { path, replacements } = await require(`${replacementsDir}/${next}`)(
       options
     );
     return Object.assign(acc, { [path]: replacements });
-  }, {});
+  }, Promise.resolve({}));
+
+  // Apply all replacements, touching each file once
   for (let path in replacements) {
     try {
       let file = await loadFile(owner, repo, path, octokit);
@@ -23,22 +30,17 @@ module.exports = async function (options) {
         content = replaceAll(content, r.from, r.to);
       }
 
-      if (content !== file.content) {
-        if (verbose) {
-          console.log(`✏️  Updating [${path}]`);
-        }
-        if (!isDryRun) {
-          await writeFile(owner, repo, path, content, file.sha, octokit);
-        }
-      } else {
-        if (verbose) {
-          console.log(`✏️  No changes detected in [${path}]`);
-        }
+      if (content === file.content) {
+        log(`No changes detected in [${path}]`);
+        continue;
+      }
+
+      log(`Updating [${path}]`);
+      if (!dryRun) {
+        await writeFile(owner, repo, path, content, file.sha, octokit);
       }
     } catch (e) {
-      if (verbose) {
-        console.log(`✏️  Unable to update [${path}]`);
-      }
+      log(`Unable to update [${path}]`);
     }
   }
 };
