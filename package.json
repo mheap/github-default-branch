@@ -24,7 +24,7 @@
     "debug": "^4.1.1",
     "prompt-confirm": "^2.0.4",
     "string.prototype.replaceall": "^1.0.3",
-    "yargs": "^15.4.0"
+    "yargs": "^16.1.1"
   },
   "bin": {
     "github-default-branch": "./bin/github-default-branch"
