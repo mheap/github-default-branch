@@ -48,6 +48,7 @@ module.exports = async (argv) => {
     let transforms = [
       "create-branch",
       "update-default-branch",
+      "github-pages",
       "retarget-pull-requests",
       "branch-protection",
       "delete-old-branch",
