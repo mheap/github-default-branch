@@ -81,12 +81,12 @@ You might want to skip any of the available transforms (such as deleting the old
 | retarget-pull-requests | Change the base for any open pull requests            |
 | branch-protection      | Update any branch protection rules to point at `$new` |
 | delete-old-branch      | Delete the `$old` branch                              |
+| github-pages           | Update GitHub Pages configuration                     |
 
 Pending transforms:
 
 - Copy branch protections instead of updating if `--skip-delete-old-branch` is used ([#26](https://github.com/mheap/github-default-branch/issues/26))
 - Retarget draft releases ([#30](https://github.com/mheap/github-default-branch/issues/30))
-- Update GitHub Pages configuration ([#16](https://github.com/mheap/github-default-branch/issues/16))
 
 ## Replacements
 
