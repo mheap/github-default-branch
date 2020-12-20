@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@octokit/plugin-enterprise-compatibility": "^1.2.5",
+    "@octokit/plugin-throttling": "^3.3.4",
     "@octokit/rest": "^18.0.0",
     "debug": "^4.1.1",
     "prompt-confirm": "^2.0.4",
