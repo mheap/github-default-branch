@@ -1,6 +1,6 @@
 {
   "name": "github-default-branch",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Rename your default branch on GitHub",
   "main": "index.js",
   "scripts": {
