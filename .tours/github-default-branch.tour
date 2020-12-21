@@ -1,0 +1,227 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "github-default-branch",
+  "steps": [
+    {
+      "file": "package.json",
+      "line": 31,
+      "description": "github-default-branch's main entrypoint is bin/github-default-branch"
+    },
+    {
+      "file": "bin/github-default-branch",
+      "line": 3,
+      "description": "bin/github-default-branch handles all of the argument parsing from the command line"
+    },
+    {
+      "file": "bin/github-default-branch",
+      "line": 4,
+      "description": "github-default-branch uses the `debug` module to add log messages. You can see them all by setting the environment variable `DEBUG=\"ghdb*\"`"
+    },
+    {
+      "file": "bin/github-default-branch",
+      "line": 125,
+      "description": "Before delegating to `run()`, which is the function exported by our `index.js` file"
+    },
+    {
+      "file": "bin/github-default-branch",
+      "line": 121,
+      "description": "Plus a `confirmation` step that ensures that the user wants to proceed"
+    },
+    {
+      "file": "index.js",
+      "line": 12,
+      "description": "We use `octokit` to call the GitHub API"
+    },
+    {
+      "file": "src/octokit.js",
+      "line": 6,
+      "description": "Including plugins for enterprise compatibility if `--enterprise-compatibility` is passed"
+    },
+    {
+      "file": "src/octokit.js",
+      "line": 14,
+      "description": "And a plugin to manage rate limiting. This tool can make a *lot* of API calls if running against an organization, so having logic to wait until our rate limit resets is important"
+    },
+    {
+      "file": "index.js",
+      "line": 22,
+      "description": "The first thing to do is fetch a list of repos to update"
+    },
+    {
+      "file": "data-sources/list-repos.js",
+      "line": 12,
+      "description": "The user can provide a single repo name (`--repo`)"
+    },
+    {
+      "file": "data-sources/list-repos.js",
+      "line": 19,
+      "description": "An organization name (`--org`)"
+    },
+    {
+      "file": "data-sources/list-repos.js",
+      "line": 30,
+      "description": "An organization *and* a team name to fetch repos that a team has access to (`--org` and `--team`)"
+    },
+    {
+      "file": "data-sources/list-repos.js",
+      "line": 42,
+      "description": "Or a user name (`--user`)"
+    },
+    {
+      "file": "data-sources/list-repos.js",
+      "line": 59,
+      "description": "Then we skip forks if `--skip-forks` was provided"
+    },
+    {
+      "file": "data-sources/list-repos.js",
+      "line": 69,
+      "description": "Remove any archived repos as we can't edit them"
+    },
+    {
+      "file": "data-sources/list-repos.js",
+      "line": 76,
+      "description": "And return a list of repo names"
+    },
+    {
+      "file": "index.js",
+      "line": 27,
+      "description": "Then for each repo, we update the branch from `old` to `target`"
+    },
+    {
+      "file": "index.js",
+      "line": 40,
+      "description": "We need to know the current `sha` of the existing `old` branch"
+    },
+    {
+      "file": "index.js",
+      "line": 48,
+      "description": "Then we apply a list of transforms in order. The first is always to create a new branch with the same `sha` as the existing branch"
+    },
+    {
+      "file": "index.js",
+      "line": 50,
+      "description": "Then we update the default branch in the repository settings"
+    },
+    {
+      "file": "index.js",
+      "line": 51,
+      "description": "Update the source for any repos using GitHub Pages"
+    },
+    {
+      "file": "index.js",
+      "line": 52,
+      "description": "Retarget any open pull requests"
+    },
+    {
+      "file": "index.js",
+      "line": 53,
+      "description": "Update any branch protection rules to prevent direct pushes to the new branch"
+    },
+    {
+      "file": "index.js",
+      "line": 54,
+      "description": "Then finally, delete the old branch"
+    },
+    {
+      "file": "index.js",
+      "line": 59,
+      "description": "Any of these transforms can be skipped by providing a CLI flag matching the name of the transform, with `--skip-` prefixed e.g. `--skip-github-pages`"
+    },
+    {
+      "file": "transforms/github-pages.js",
+      "line": 1,
+      "description": "Let's take a look at how a transform works. In this case, it's our GitHub Pages transform. \n\nAll of the information we have available is passed in to the transform, providing the old and target branch name, plus the repository name and owner"
+    },
+    {
+      "file": "transforms/github-pages.js",
+      "line": 10,
+      "description": "We create a new debug logger with a `github-pages` prefix to make it easy to see what this transform is doing in the logs"
+    },
+    {
+      "file": "transforms/github-pages.js",
+      "line": 17,
+      "description": "Most transforms start by reading the current configuration. In this case we're loading the current GitHub pages settings"
+    },
+    {
+      "file": "transforms/github-pages.js",
+      "line": 22,
+      "description": "We need to check that the current configuration is pointing to our old branch. If it is not, we should not update the configuration."
+    },
+    {
+      "file": "transforms/github-pages.js",
+      "line": 29,
+      "description": "Next, we update the config to point at our new `target` branch"
+    },
+    {
+      "file": "transforms/github-pages.js",
+      "line": 31,
+      "description": "Before calling the API again to update the settings. At this point our transform is complete"
+    },
+    {
+      "file": "transforms/github-pages.js",
+      "line": 41,
+      "description": "It's worth mentioning that some transforms may not be applicable to all repos. In this case, Octokit will throw an error if it cannot fetch the GitHub Pages configuration (if the repo does not use GitHub Pages). In this case we log the error and continue, as it's an expected failure case"
+    },
+    {
+      "file": "index.js",
+      "line": 70,
+      "description": "Back to `index.js`, the final thing to do is update any file contents using `src/update-content`"
+    },
+    {
+      "file": "src/update-content.js",
+      "line": 9,
+      "description": "Replacements live in the `replacements` folder at the root of the repository"
+    },
+    {
+      "file": "src/update-content.js",
+      "line": 15,
+      "description": "We read all replacement files and build an object containing all transforms to apply, using the file path as a key. This allows us to touch each file a single time and apply all changes at once"
+    },
+    {
+      "file": "src/update-content.js",
+      "line": 26,
+      "description": "For each path detected, we load the file contents using the API"
+    },
+    {
+      "file": "src/update-content.js",
+      "line": 30,
+      "description": "Replace all of the occurences of the `from` string with the `to` string"
+    },
+    {
+      "file": "src/update-content.js",
+      "line": 40,
+      "description": "Then write the file to the repo if it has changed"
+    },
+    {
+      "file": "replacements/readme.js",
+      "line": 3,
+      "description": "Here is an example replacements file that targets the `README.md` file"
+    },
+    {
+      "file": "replacements/readme.js",
+      "line": 6,
+      "description": "We replace `@old` with `@target`"
+    },
+    {
+      "file": "replacements/readme.js",
+      "line": 10,
+      "description": "Along with any badges (such as Travis CI build badges) in the text"
+    },
+    {
+      "file": "index.js",
+      "line": 27,
+      "description": "Then we do it all again for the next repo!"
+    },
+    {
+      "file": "index.js",
+      "line": 75,
+      "description": "Once all repos have been updated, our function exits"
+    },
+    {
+      "file": "bin/github-default-branch",
+      "line": 127,
+      "description": "And we tell the user that our job is complete"
+    }
+  ],
+  "isPrimary": true
+}
