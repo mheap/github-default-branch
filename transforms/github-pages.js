@@ -28,16 +28,22 @@ module.exports = async function ({
 
     source.branch = target;
 
-    await octokit.repos.updateInformationAboutPagesSite({
-      owner,
-      repo,
-      source,
-    });
+    if (!dryRun) {
+      await octokit.repos.updateInformationAboutPagesSite({
+        owner,
+        repo,
+        source,
+      });
+    }
 
     log(
       `Updated GitHub pages from [${old}] to [${target}] with path [${source.path}]`
     );
   } catch (e) {
-    log(`No GitHub Pages found for [${owner}/${repo}]`);
+    if (e.status === 404) {
+      log(`No GitHub Pages found for [${owner}/${repo}]`);
+      return;
+    }
+    throw e;
   }
 };

@@ -83,6 +83,31 @@ describe("#github-pages", () => {
     );
   });
 
+  it("respects dryRun", async () => {
+    nock("https://api.github.com/")
+      .get("/repos/demo/repo/pages")
+      .reply(200, {
+        source: {
+          branch: "master",
+          path: "/",
+        },
+      });
+
+    await githubPages({
+      owner: "demo",
+      repo: "repo",
+      old: "master",
+      target: "main",
+      octokit,
+      log,
+      dryRun: true,
+    });
+
+    expect(log.logger).toBeCalledWith(
+      "Updated GitHub pages from [master] to [main] with path [/]"
+    );
+  });
+
   it("configures actions with the new branch (custom path)", async () => {
     nock("https://api.github.com/")
       .get("/repos/demo/repo/pages")
