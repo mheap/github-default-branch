@@ -50,6 +50,7 @@ module.exports = async (argv) => {
       "update-default-branch",
       "github-pages",
       "retarget-pull-requests",
+      "retarget-draft-releases",
       "branch-protection",
       "delete-old-branch",
     ];
