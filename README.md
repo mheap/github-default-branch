@@ -75,13 +75,14 @@ You might want to skip any of the available transforms (such as deleting the old
 
 ## Available transforms
 
-| Transform              | Description                                           |
-| ---------------------- | ----------------------------------------------------- |
-| update-default-branch  | Set the default branch of the repo to `$new`          |
-| retarget-pull-requests | Change the base for any open pull requests            |
-| branch-protection      | Update any branch protection rules to point at `$new` |
-| delete-old-branch      | Delete the `$old` branch                              |
-| github-pages           | Update GitHub Pages configuration                     |
+| Transform               | Description                                           |
+| ----------------------- | ----------------------------------------------------- |
+| update-default-branch   | Set the default branch of the repo to `$new`          |
+| retarget-pull-requests  | Change the base for any open pull requests            |
+| retarget-draft-releases | Change the `target_commitish` for any draft releases  |
+| branch-protection       | Update any branch protection rules to point at `$new` |
+| delete-old-branch       | Delete the `$old` branch                              |
+| github-pages            | Update GitHub Pages configuration                     |
 
 Pending transforms:
 
