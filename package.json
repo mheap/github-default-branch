@@ -19,22 +19,22 @@
   "author": "Michael Heap <m@michaelheap.com> (https://michaelheap.com)",
   "license": "MIT",
   "dependencies": {
-    "@octokit/plugin-enterprise-compatibility": "^1.2.5",
-    "@octokit/plugin-throttling": "^3.3.4",
-    "@octokit/rest": "^18.0.0",
+    "@octokit/plugin-enterprise-compatibility": "^1.2.9",
+    "@octokit/plugin-throttling": "^3.4.1",
+    "@octokit/rest": "^18.3.4",
     "debug": "^4.1.1",
     "prompt-confirm": "^2.0.4",
-    "string.prototype.replaceall": "^1.0.3",
+    "string.prototype.replaceall": "^1.0.5",
     "yargs": "^16.2.0"
   },
   "bin": {
     "github-default-branch": "./bin/github-default-branch"
   },
   "devDependencies": {
-    "eslint": "^7.13.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "eslint": "^7.21.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.4.2",
-    "nock": "^13.0.4",
+    "nock": "^13.0.10",
     "prettier": "^2.1.2"
   }
 }
