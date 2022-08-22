@@ -19,7 +19,7 @@
   "author": "Michael Heap <m@michaelheap.com> (https://michaelheap.com)",
   "license": "MIT",
   "dependencies": {
-    "@octokit/plugin-enterprise-compatibility": "^1.2.9",
+    "@octokit/plugin-enterprise-compatibility": "^2.0.2",
     "@octokit/plugin-throttling": "^3.4.1",
     "@octokit/rest": "^18.3.4",
     "debug": "^4.1.1",
